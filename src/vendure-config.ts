@@ -5,7 +5,7 @@ import {
     VendureConfig,
 } from '@vendure/core';
 import { defaultEmailHandlers, EmailPlugin } from '@vendure/email-plugin';
-import { AssetServerPlugin, configureS3AssetStorage} from '@vendure/asset-server-plugin';
+import { AssetServerPlugin, configureS3AssetStorage } from '@vendure/asset-server-plugin';
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import 'dotenv/config';
 import path from 'path';
@@ -38,14 +38,14 @@ export const config: VendureConfig = {
             password: process.env.SUPERADMIN_PASSWORD,
         },
         cookieOptions: {
-          secret: process.env.COOKIE_SECRET,
+            secret: process.env.COOKIE_SECRET,
         },
     },
     dbConnectionOptions: {
         type: 'postgres',
         // See the README.md "Migrations" section for an explanation of
         // the `synchronize` and `migrations` options.
-        synchronize: false,
+        synchronize: true,
         migrations: [path.join(__dirname, './migrations/*.+(js|ts)')],
         logging: false,
         database: process.env.DB_NAME,
@@ -68,10 +68,13 @@ export const config: VendureConfig = {
             storageStrategyFactory: configureS3AssetStorage({
                 bucket: <string>process.env.AWS_BUCKET,
                 credentials: {
-                  accessKeyId: <string>process.env.AWS_ACCESS_KEY_ID,
-                  secretAccessKey: <string>process.env.AWS_SECRET_ACCESS_KEY,
+                    accessKeyId: <string>process.env.AWS_ACCESS_KEY_ID,
+                    secretAccessKey: <string>process.env.AWS_SECRET_ACCESS_KEY,
                 },
-              }),
+                nativeS3Configuration: {
+                    region: process.env.AWS_REGION,
+                },
+            }),
         }),
         DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
