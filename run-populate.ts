@@ -4,9 +4,9 @@ import path from 'path';
 
 import { config } from './src/vendure-config';
 
-const initialData = path.join(__dirname, '../assets/initial-data.json');
-const productsCsvFile = path.join(__dirname, '../assets/products.csv');
-const importDir = path.join(__dirname, '../assets/images');
+const initialData = path.join(__dirname, './assets/initial-data.json');
+const productsCsvFile = path.join(__dirname, './assets/products.csv');
+const importDir = path.join(__dirname, './assets/images');
 
 const populateConfig: VendureConfig = {
   ...config,
