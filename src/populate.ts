@@ -1,49 +1,32 @@
 import { populate } from '@vendure/core/cli';
-import { bootstrap, VendureConfig } from '@vendure/core';
-import { createConnection } from 'typeorm';
+import { bootstrap, VendureConfig, DefaultJobQueuePlugin } from '@vendure/core';
 import path from 'path';
 
-/**
- * @description
- * This function is responsible for populating the DB with test data on the first run. It
- * first checks to see if the configured DB has any tables, and if not, runs the `populate()`
- * function using data from the @vendure/create package.
- */
-export async function populateOnFirstRun(config: VendureConfig) {
-    const dbTablesAlreadyExist = await tablesExist(config);
-    if (!dbTablesAlreadyExist) {
-        console.log(`No Vendure tables found in DB. Populating database...`);
-        return populate(
-            () => bootstrap({
-                ...config,
-                importExportOptions: {
-                    importAssetsDir: path.join(
-                        require.resolve('@vendure/create/assets/products.csv'),
-                        '../images'
-                    ),
-                },
-                dbConnectionOptions: {...config.dbConnectionOptions, synchronize: true}
-            }),
-            require('@vendure/create/assets/initial-data.json'),
-            require.resolve('@vendure/create/assets/products.csv')
-        ).then(app => app.close())
-    } else {
-        return;
-    }
+import { config } from './vendure-config';
+
+const initialData = path.join(__dirname, './assets/initial-data.json');
+const productsCsvFile = path.join(__dirname, './assets/products.csv');
+
+const populateConfig = {
+    ...config,
+    plugins: (config.plugins || []).filter(
+        // Remove your JobQueuePlugin during populating to avoid
+        // generating lots of unnecessary jobs as the Collections get created.
+        plugin => plugin !== DefaultJobQueuePlugin,
+    ),
 }
 
-async function tablesExist(config: VendureConfig) {
-    const connection = await createConnection(config.dbConnectionOptions);
-    const result = await connection.query(`
-        select n.nspname as table_schema,
-               c.relname as table_name,
-               c.reltuples as rows
-        from pg_class c
-        join pg_namespace n on n.oid = c.relnamespace
-        where c.relkind = 'r'
-              and n.nspname = '${process.env.DB_SCHEMA}'
-        order by c.reltuples desc;`
-    );
-    await connection.close();
-    return 0 < result.length;
+
+export async function populateOnFirstRun(populateConfig: VendureConfig) {
+    return populate(
+        () => bootstrap({
+            ...populateConfig,
+            importExportOptions: {
+              importAssetsDir: './assets/images',
+            },
+            dbConnectionOptions: { ...populateConfig.dbConnectionOptions, synchronize: true }
+        }),
+        initialData,
+        productsCsvFile
+    ).then(app => app.close())
 }
