@@ -1,14 +1,14 @@
-// populate-server.ts
-import { bootstrap, DefaultJobQueuePlugin } from '@vendure/core';
+import { bootstrap, VendureConfig, DefaultJobQueuePlugin } from '@vendure/core';
 import { populate } from '@vendure/core/cli';
 import path from 'path';
 
-import { config } from './src/vendure-config';
+import { config } from './vendure-config';
 
-const initialData = path.join(__dirname, './assets/initial-data.json');
-const productsCsvFile = path.join(__dirname, './assets/products.csv');
+const initialData = path.join(__dirname, '../assets/initial-data.json');
+const productsCsvFile = path.join(__dirname, '../assets/products.csv');
+const importDir = path.join(__dirname, '../assets/images');
 
-const populateConfig = {
+const populateConfig: VendureConfig = {
   ...config,
   plugins: (config.plugins || []).filter(
     // Remove your JobQueuePlugin during populating to avoid
@@ -21,8 +21,9 @@ populate(
   () => bootstrap({
     ...populateConfig,
     importExportOptions: {
-      importAssetsDir: './assets/images',
+      importAssetsDir: importDir,
     },
+    dbConnectionOptions: { ...populateConfig.dbConnectionOptions, synchronize: true }
   }),
   initialData,
   productsCsvFile
