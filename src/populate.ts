@@ -6,6 +6,7 @@ import { config } from './vendure-config';
 
 const initialData = path.join(__dirname, '../assets/initial-data.json');
 const productsCsvFile = path.join(__dirname, '../assets/products.csv');
+const importDir = path.join(__dirname, '../assets/images');
 
 const populateConfig = {
     ...config,
@@ -22,7 +23,7 @@ export async function populateOnFirstRun(populateConfig: VendureConfig) {
         () => bootstrap({
             ...populateConfig,
             importExportOptions: {
-              importAssetsDir: '../assets/images',
+              importAssetsDir: importDir,
             },
             dbConnectionOptions: { ...populateConfig.dbConnectionOptions, synchronize: true }
         }),
