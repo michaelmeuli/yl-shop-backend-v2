@@ -13,7 +13,7 @@
     "outDir": "./dist",
     "baseUrl": "./"
   },
-  "exclude": ["node_modules", "migration.ts", "src/run-populate.ts"],
+  "exclude": ["node_modules", "migration.ts", "run-populate.ts"],
   "ts-node": {
     "files": true
   }

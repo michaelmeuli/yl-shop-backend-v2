@@ -2,7 +2,7 @@ import { bootstrap, VendureConfig, DefaultJobQueuePlugin } from '@vendure/core';
 import { populate } from '@vendure/core/cli';
 import path from 'path';
 
-import { config } from './vendure-config';
+import { config } from './src/vendure-config';
 
 const initialData = path.join(__dirname, '../assets/initial-data.json');
 const productsCsvFile = path.join(__dirname, '../assets/products.csv');
