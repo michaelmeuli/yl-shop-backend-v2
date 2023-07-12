@@ -66,13 +66,16 @@ export const config: VendureConfig = {
             route: 'assets',
             assetUploadDir: path.join(__dirname, '../static/assets'),
             storageStrategyFactory: configureS3AssetStorage({
-                bucket: <string>process.env.AWS_BUCKET,
+                bucket: 'yl-minio-bucket',
                 credentials: {
-                    accessKeyId: <string>process.env.AWS_ACCESS_KEY_ID,
-                    secretAccessKey: <string>process.env.AWS_SECRET_ACCESS_KEY,
+                    accessKeyId: <string>process.env.MINIO_ACCESS_KEY_ID,
+                    secretAccessKey: <string>process.env.MINIO_SECRET_ACCESS_KEY,
                 },
                 nativeS3Configuration: {
-                    region: process.env.AWS_REGION,
+                    endpoint: process.env.MINIO_ENDPOINT ?? 'http://localhost:9000',
+                    forcePathStyle: true,
+                    signatureVersion: 'v4',
+                    region: 'eu-west-1',  // dummy value
                 },
             }),
         }),
