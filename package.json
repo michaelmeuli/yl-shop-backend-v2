@@ -13,7 +13,7 @@
     "migration:generate": "ts-node migration generate",
     "migration:run": "ts-node migration run",
     "migration:revert": "ts-node migration revert",
-    "populate:run": "yarn ts-node ./run-populate.ts"
+    "populate:run": "ts-node ./run-populate.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.367.0",
