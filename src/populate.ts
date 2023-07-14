@@ -1,5 +1,6 @@
 import { bootstrap, VendureConfig, DefaultJobQueuePlugin } from '@vendure/core';
 import { populate } from '@vendure/core/cli';
+import { createConnection } from 'typeorm';
 import path from 'path';
 
 import { config } from './vendure-config';
@@ -19,24 +20,37 @@ const populateConfig: VendureConfig = {
 
 
 export async function populateOnFirstRun(populateConfig: VendureConfig) {
-    return populate(
-        () => bootstrap({
-            ...populateConfig,
-            importExportOptions: {
-                importAssetsDir: importDir,
-            },
-            dbConnectionOptions: { ...populateConfig.dbConnectionOptions, synchronize: true }
-        }),
-        initialData,
-        productsCsvFile
-    ).then(app => {
-        return app.close();
+    const dbTablesAlreadyExist = await tablesExist(config);
+    if (!dbTablesAlreadyExist) {
+        console.log(`No Vendure tables found in DB. Populating database...`);
+        return populate(
+            () => bootstrap({
+                ...populateConfig,
+                importExportOptions: {
+                    importAssetsDir: importDir,
+                },
+                dbConnectionOptions: { ...populateConfig.dbConnectionOptions, synchronize: true }
+            }),
+            initialData,
+            productsCsvFile
+        ).then(app => app.close())
+    } else {
+        return;
     }
-    ).then(
-        () => process.exit(0),
-        err => {
-            console.log(err);
-            process.exit(1);
-        },
+}
+
+async function tablesExist(config: VendureConfig) {
+    const connection = await createConnection(config.dbConnectionOptions);
+    const result = await connection.query(`
+        select n.nspname as table_schema,
+               c.relname as table_name,
+               c.reltuples as rows
+        from pg_class c
+        join pg_namespace n on n.oid = c.relnamespace
+        where c.relkind = 'r'
+              and n.nspname = '${process.env.DB_SCHEMA}'
+        order by c.reltuples desc;`
     );
+    await connection.close();
+    return 0 < result.length;
 }
