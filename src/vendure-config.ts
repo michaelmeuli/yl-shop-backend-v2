@@ -1,6 +1,5 @@
 import {
     dummyPaymentHandler,
-    DefaultJobQueuePlugin,
     DefaultSearchPlugin,
     VendureConfig,
 } from '@vendure/core';
@@ -9,6 +8,7 @@ import { AssetServerPlugin, configureS3AssetStorage } from '@vendure/asset-serve
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import 'dotenv/config';
 import path from 'path';
+import { BullMQJobQueuePlugin } from '@vendure/job-queue-plugin/package/bullmq';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 
@@ -76,7 +76,11 @@ export const config: VendureConfig = {
                 },
             }),
         }),
-        DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
+        BullMQJobQueuePlugin.init({
+            connection: {
+              port: 6379
+            }
+          }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
         EmailPlugin.init({
             devMode: true,
