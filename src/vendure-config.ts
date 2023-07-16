@@ -78,9 +78,10 @@ export const config: VendureConfig = {
         }),
         BullMQJobQueuePlugin.init({
             connection: {
-              port: 6379
+                host: 'master.redis--4yx24yfn2lvd.addon.code.run',
+                port: 6379
             }
-          }),
+        }),
         DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
         EmailPlugin.init({
             devMode: true,
